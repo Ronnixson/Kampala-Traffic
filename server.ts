@@ -4,12 +4,12 @@ import dotenv from "dotenv";
 import { GoogleGenAI, Type } from "@google/genai";
 import { createServer as createViteServer } from "vite";
 
-dotenv.config();
+dotenv.config({ path: ".env.local" });
 
 const app = express();
 app.use(express.json());
 
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT ?? "3000", 10);
 
 // Lazy initialization of Gemini client
 let aiClient: GoogleGenAI | null = null;
