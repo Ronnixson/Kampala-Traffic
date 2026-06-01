@@ -1,0 +1,47 @@
+{
+  "entities": {
+    "TrafficIncident": {
+      "title": "TrafficIncident",
+      "description": "Crowdsourced Kampala traffic incident reports",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "location": { "type": "string" },
+        "severity": { "type": "string", "enum": ["Low", "Medium", "High", "Critical"] },
+        "cause": { "type": "string" },
+        "alternativeRouteSuggested": { "type": "boolean" },
+        "alternativeRouteDetails": { "type": "string" },
+        "rawInput": { "type": "string" },
+        "language": { "type": "string", "enum": ["English", "Luganda", "Mix"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "reportedBy": { "type": "string" }
+      },
+      "required": ["id", "location", "severity", "cause", "alternativeRouteSuggested", "rawInput", "language", "timestamp", "reportedBy"]
+    },
+    "BodaReview": {
+      "title": "BodaReview",
+      "description": "Crowdsourced review of boda-boda pilot safety behavior",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "riderPlate": { "type": "string" },
+        "incidentType": { "type": "string", "enum": ["Reckless Overtaking", "No Helmet", "Severe Speeding", "Safe Ride", "Overloading", "Polite Assistant"] },
+        "sentiment": { "type": "string", "enum": ["Positive", "Neutral", "Negative"] },
+        "reviewText": { "type": "string" },
+        "safetyScore": { "type": "integer" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "riderPlate", "incidentType", "sentiment", "reviewText", "safetyScore", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/traffic_incidents/{incidentId}": {
+      "schema": "TrafficIncident",
+      "description": "Collection of all dynamic traffic incidents in Kampala"
+    },
+    "/boda_reviews/{reviewId}": {
+      "schema": "BodaReview",
+      "description": "Collection of all boda safety logs"
+    }
+  }
+}

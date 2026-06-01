@@ -1,0 +1,69 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net - deny all by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    // Traffic Incident Validation Blueprint
+    function isValidTrafficIncident(data, docId) {
+      return data.id == docId
+        && data.location is string && data.location.size() >= 3 && data.location.size() <= 100
+        && data.severity is string && (data.severity == 'Low' || data.severity == 'Medium' || data.severity == 'High' || data.severity == 'Critical')
+        && data.cause is string && data.cause.size() <= 200
+        && data.alternativeRouteSuggested is bool
+        && (data.alternativeRouteSuggested == false || (data.keys().hasAll(['alternativeRouteDetails']) && data.alternativeRouteDetails is string && data.alternativeRouteDetails.size() <= 500))
+        && data.rawInput is string && data.rawInput.size() <= 1000
+        && data.language is string && (data.language == 'English' || data.language == 'Luganda' || data.language == 'Mix')
+        && data.timestamp is string && data.timestamp.size() <= 50
+        && data.reportedBy is string && data.reportedBy.size() <= 100
+        && data.keys().hasAll(['id', 'location', 'severity', 'cause', 'alternativeRouteSuggested', 'rawInput', 'language', 'timestamp', 'reportedBy'])
+        && (data.keys().size() == 9 || (data.keys().size() == 10 && data.keys().hasAll(['alternativeRouteDetails'])));
+    }
+
+    // Boda Review Validation Blueprint
+    function isValidBodaReview(data, docId) {
+      return data.id == docId
+        && data.riderPlate is string && data.riderPlate.size() >= 3 && data.riderPlate.size() <= 20
+        && data.incidentType is string && (data.incidentType == 'Reckless Overtaking' || data.incidentType == 'No Helmet' || data.incidentType == 'Severe Speeding' || data.incidentType == 'Safe Ride' || data.incidentType == 'Overloading' || data.incidentType == 'Polite Assistant')
+        && data.sentiment is string && (data.sentiment == 'Positive' || data.sentiment == 'Neutral' || data.sentiment == 'Negative')
+        && data.reviewText is string && data.reviewText.size() <= 1000
+        && data.safetyScore is int && data.safetyScore >= 0 && data.safetyScore <= 10
+        && data.timestamp is string && data.timestamp.size() <= 50
+        && data.keys().hasAll(['id', 'riderPlate', 'incidentType', 'sentiment', 'reviewText', 'safetyScore', 'timestamp'])
+        && data.keys().size() == 7;
+    }
+
+    // Collections matches
+    match /traffic_incidents/{incidentId} {
+      allow read, list: if true;
+      allow create: if isSignedIn()
+                    && isValidId(incidentId)
+                    && isValidTrafficIncident(incoming(), incidentId);
+      allow update, delete: if false;
+    }
+
+    match /boda_reviews/{reviewId} {
+      allow read, list: if true;
+      allow create: if isSignedIn()
+                    && isValidId(reviewId)
+                    && isValidBodaReview(incoming(), reviewId);
+      allow update, delete: if false;
+    }
+  }
+}
