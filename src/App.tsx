@@ -365,11 +365,11 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-[#FFD700] flex items-center justify-center text-black font-extrabold text-sm shadow-xs logo-icon">
-              K
+              I
             </div>
             <div>
-              <h1 className="text-xl font-extrabold tracking-tight text-[#1A1C1E] logo">Kampala Smart Transit</h1>
-              <p className="text-xs text-slate-500 font-medium">Crowdsourced Transit & Boda Safety Ledger</p>
+              <h1 className="text-xl font-extrabold tracking-tight text-[#1A1C1E] logo">ITpath-traffic</h1>
+              <p className="text-xs text-slate-500 font-medium">Kampala Crowdsourced Transit & Boda Safety Ledger</p>
             </div>
           </div>
 

@@ -1,5 +1,5 @@
 {
-  "name": "Kla traffic",
+  "name": "ITpath-traffic",
   "description": "Crowdsourced Luganda/English traffic tracking, dynamic Taxi fare predictor, and feedback analyzer for safe boda-boda transit.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
