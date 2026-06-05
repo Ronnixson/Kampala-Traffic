@@ -35,6 +35,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'traffic' | 'fare' | 'boda'>('traffic');
   const [keyStatus, setKeyStatus] = useState<{ checked: boolean; available: boolean }>({ checked: false, available: false });
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
   
   // Section 1: Traffic Map Feed States
   const [incidents, setIncidents] = useState<TrafficIncident[]>(INITIAL_TRAFFIC_INCIDENTS);
@@ -456,8 +457,14 @@ export default function App() {
                 <button
                   onClick={async () => {
                     try {
+                      setAuthError(null);
                       await signInWithPopup(auth, googleProvider);
-                    } catch (err) {
+                    } catch (err: any) {
+                      if (err && err.code === 'auth/popup-closed-by-user') {
+                        setAuthError('Sign In popup was closed before completing. Please try again or make sure popups are allowed in your browser.');
+                      } else {
+                        setAuthError(err?.message || 'Google authorization error. Please try again.');
+                      }
                       console.error('Google authorization error', err);
                     }
                   }}
@@ -475,6 +482,31 @@ export default function App() {
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
+        {authError && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 bg-red-55 border border-red-200 text-red-950 rounded-xl text-xs flex items-start justify-between gap-3 shadow-xxs"
+          >
+            <div className="flex gap-2.5 items-start">
+              <AlertTriangle className="w-4.5 h-4.5 text-red-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-extrabold text-red-900">Google Sign-In Alert</p>
+                <p className="text-red-850 mt-1">{authError}</p>
+                <div className="text-[11px] text-red-800/90 mt-2 bg-red-50/50 p-2.5 rounded-lg border border-red-100/50">
+                  <strong className="text-red-900">Why did this happen?</strong> Google Sign-In requires opening a secure pop-up window or allowing third-party authentication context in the embedded preview iframe. If pop-ups are blocked, or browser cookies restrict cross-origin authentication, the sign-in cannot complete.
+                </div>
+              </div>
+            </div>
+            <button 
+              onClick={() => setAuthError(null)}
+              className="text-red-500 hover:text-red-700 font-extrabold px-2 py-1 rounded-lg hover:bg-red-100 transition-colors cursor-pointer text-xs shrink-0"
+            >
+              Dismiss
+            </button>
+          </motion.div>
+        )}
+
         {/* TAB 1: CROWD-SOURCED TRAFFIC TRACKER */}
         {activeTab === 'traffic' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
